@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modern Magical Lamp Login</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Roboto, sans-serif;
+        }
+
+        body {
+            height: 100vh;
+            background: #050a0f; /* Dark Premium Background */
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            perspective: 1000px;
+        }
+
+        /* Hanging Wire */
+        .wire {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            width: 4px;
+            height: 80px;
+            background: #222;
+            transform: translateX(-50%);
+            z-index: 2;
+        }
+
+        /* Lamp Container */
+        .lamp-container {
+            position: absolute;
+            top: 80px;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            z-index: 3;
+        }
+
+        .lamp {
+            width: 120px;
+            height: 60px;
+            background: #1a1a1a;
+            border-radius: 60px 60px 10px 10px;
+            cursor: pointer;
+            position: relative;
+            box-shadow: inset 0 2px 5px rgba(255,255,255,0.1);
+            transition: 0.4s all ease;
+            border-bottom: 4px solid #000;
+        }
+
+        /* Glow Color - Yahan se color change karein */
+        .bulb {
+            width: 30px;
+            height: 30px;
+            background: #333;
+            border-radius: 50%;
+            margin: 15px auto;
+            transition: 0.5s;
+        }
+
+        /* Light Beam Shape */
+        .light-beam {
+            position: absolute;
+            top: 55px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 600px; /* Beam width */
+            height: 800px;
+            background: radial-gradient(circle at 50% 0%, rgba(0, 255, 255, 0.15) 0%, transparent 70%);
+            clip-path: polygon(45% 0%, 55% 0%, 100% 100%, 0% 100%);
+            opacity: 0;
+            pointer-events: none;
+            transition: 0.6s ease;
+            filter: blur(20px);
+        }
+
+        /* Active States (When Lamp is ON) */
+        .lamp.active {
+            background: #222;
+        }
+
+        .lamp.active .bulb {
+            background: #00ffff; /* Neon Blue Color */
+            box-shadow: 0 0 30px #00ffff, 0 0 60px #00ffff;
+        }
+
+        .light-beam.active {
+            opacity: 1;
+        }
+
+        /* Auth Card - Glassmorphism */
+        .auth-card {
+            width: 350px;
+            padding: 40px;
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 25px;
+            text-align: center;
+            color: #fff;
+            opacity: 0;
+            transform: translateY(30px) scale(0.9);
+            transition: 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 25px 50px rgba(0,0,0,0.5);
+        }
+
+        .auth-card.active {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+
+        .auth-card h2 {
+            margin-bottom: 25px;
+            font-weight: 300;
+            letter-spacing: 2px;
+            color: #00ffff;
+            text-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+        }
+
+        .auth-card input {
+            width: 100%;
+            padding: 14px;
+            margin: 10px 0;
+            border: none;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.08);
+            color: #fff;
+            outline: none;
+            transition: 0.3s;
+            border: 1px solid transparent;
+        }
+
+        .auth-card input:focus {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: #00ffff;
+        }
+
+        .auth-card button {
+            width: 100%;
+            padding: 14px;
+            margin-top: 20px;
+            background: #00ffff;
+            border: none;
+            border-radius: 12px;
+            font-weight: bold;
+            color: #000;
+            cursor: pointer;
+            transition: 0.3s;
+            text-transform: uppercase;
+        }
+
+        .auth-card button:hover {
+            box-shadow: 0 0 25px rgba(0, 255, 255, 0.6);
+            transform: translateY(-2px);
+        }
+
+        .switch {
+            margin-top: 20px;
+            font-size: 0.85rem;
+            color: #aaa;
+            cursor: pointer;
+        }
+
+        .switch span {
+            color: #00ffff;
+            text-decoration: underline;
+        }
+
+        /* Helpful Tip Text */
+        .tip {
+            position: absolute;
+            bottom: 20px;
+            color: #444;
+            font-size: 0.8rem;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="wire"></div>
+
+    <div class="lamp-container">
+        <div class="lamp" id="lamp">
+            <div class="bulb"></div>
+        </div>
+        <div class="light-beam" id="lightBeam"></div>
+    </div>
+
+    <div class="auth-card" id="authCard">
+        <h2 id="formTitle">LOGIN</h2>
+        <input type="text" placeholder="Username" id="username">
+        <input type="email" placeholder="Email Address" id="email" style="display:none;">
+        <input type="password" placeholder="Password" id="password">
+        <button id="authButton">Sign In</button>
+        <div class="switch" id="switchForm">New here? <span id="toggleText">Create Account</span></div>
+    </div>
+
+    <p class="tip">Click the lamp to toggle light</p>
+
+    <script>
+        const lamp = document.getElementById("lamp");
+        const lightBeam = document.getElementById("lightBeam");
+        const authCard = document.getElementById("authCard");
+        const switchForm = document.getElementById("switchForm");
+        const formTitle = document.getElementById("formTitle");
+        const authButton = document.getElementById("authButton");
+        const emailInput = document.getElementById("email");
+        const toggleText = document.getElementById("toggleText");
+
+        let isLampOn = false;
+        let isLogin = true;
+
+        // Toggle Light Logic
+        lamp.addEventListener("click", () => {
+            isLampOn = !isLampOn;
+            lamp.classList.toggle("active", isLampOn);
+            lightBeam.classList.toggle("active", isLampOn);
+            authCard.classList.toggle("active", isLampOn);
+        });
+
+        // Switch Logic
+        switchForm.addEventListener("click", () => {
+            isLogin = !isLogin;
+            if (isLogin) {
+                formTitle.innerText = "LOGIN";
+                authButton.innerText = "Sign In";
+                emailInput.style.display = "none";
+                toggleText.innerText = "Create Account";
+            } else {
+                formTitle.innerText = "SIGN UP";
+                authButton.innerText = "Create Account";
+                emailInput.style.display = "block";
+                toggleText.innerText = "Login instead";
+            }
+        });
+    </script>
+</body>
+</html>
